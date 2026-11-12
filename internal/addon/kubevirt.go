@@ -58,10 +58,31 @@ const KVMResource corev1.ResourceName = "devices.kubevirt.io/kvm"
 
 var kubeVirtGVR = schema.GroupVersionResource{Group: "kubevirt.io", Version: "v1", Resource: "kubevirts"}
 
+// KubeVirtOptions tune the installation.
+type KubeVirtOptions struct {
+	// NoImageVolume makes KubeVirt run containerDisks as containers instead
+	// of Kubernetes image volumes. For dev clusters loading rebuilt VM images
+	// under the same tag: k3s' containerd then fails to mount the new image
+	// as a volume (ImageVolumeMountFailed) until it restarts. Image volumes
+	// are the safer default (no bind mounts by virt-handler).
+	NoImageVolume bool
+	// Timeout of the wait for KubeVirt to be available.
+	Timeout time.Duration
+}
+
+// kubeVirtCRFor returns the KubeVirt CR for the options.
+func kubeVirtCRFor(opts KubeVirtOptions) string {
+	if !opts.NoImageVolume {
+		return kubeVirtCR
+	}
+	return kubeVirtCR + "    developerConfiguration:\n      disabledFeatureGates: [ImageVolume]\n"
+}
+
 // InstallKubeVirt installs or upgrades KubeVirt and waits until it is
 // available. It then restarts the opslab operator, which detects KubeVirt
 // at startup.
-func InstallKubeVirt(ctx context.Context, c *kube.Cluster, out io.Writer, timeout time.Duration) error {
+func InstallKubeVirt(ctx context.Context, c *kube.Cluster, out io.Writer, opts KubeVirtOptions) error {
+	timeout := opts.Timeout
 	fmt.Fprintf(out, "downloading KubeVirt %s\n", KubeVirtVersion)
 	manifest, err := download(ctx, KubeVirtOperatorURL, kubeVirtOperatorSHA256)
 	if err != nil {
@@ -71,7 +92,7 @@ func InstallKubeVirt(ctx context.Context, c *kube.Cluster, out io.Writer, timeou
 	if err != nil {
 		return fmt.Errorf("decoding the KubeVirt manifest: %w", err)
 	}
-	cr, err := kube.Objects([]byte(kubeVirtCR))
+	cr, err := kube.Objects([]byte(kubeVirtCRFor(opts)))
 	if err != nil {
 		return err
 	}

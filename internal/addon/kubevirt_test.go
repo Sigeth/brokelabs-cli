@@ -59,6 +59,19 @@ func TestKubeVirtCRUsesRuntimeDefaultSeccomp(t *testing.T) {
 	}
 }
 
+func TestKubeVirtCRWithoutImageVolume(t *testing.T) {
+	objs, err := kube.Objects([]byte(kubeVirtCRFor(KubeVirtOptions{NoImageVolume: true})))
+	if err != nil || len(objs) != 1 {
+		t.Fatalf("objects = %v, %v", objs, err)
+	}
+	gates, _, _ := unstructured.NestedStringSlice(objs[0].Object, "spec", "configuration", "developerConfiguration", "disabledFeatureGates")
+	seccomp, _, _ := unstructured.NestedBool(objs[0].Object, "spec", "configuration", "seccompConfiguration",
+		"virtualMachineInstanceProfile", "customProfile", "runtimeDefaultProfile")
+	if len(gates) != 1 || gates[0] != "ImageVolume" || !seccomp {
+		t.Fatalf("CR = %v", objs[0].Object)
+	}
+}
+
 func TestDownloadVerifiesTheChecksum(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("manifest")) }))
 	defer srv.Close()

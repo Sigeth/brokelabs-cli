@@ -72,7 +72,7 @@ func newAddonCommand() *cobra.Command {
 		Use:   "kubevirt",
 		Short: "KubeVirt, for the vm runtime (" + addon.KubeVirtVersion + ")",
 	}
-	var timeout time.Duration
+	var opts addon.KubeVirtOptions
 	install := &cobra.Command{
 		Use:   "install",
 		Short: "Install or upgrade KubeVirt, configured for opslab",
@@ -82,10 +82,12 @@ func newAddonCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return addon.InstallKubeVirt(cmd.Context(), c, cmd.OutOrStdout(), timeout)
+			return addon.InstallKubeVirt(cmd.Context(), c, cmd.OutOrStdout(), opts)
 		},
 	}
-	install.Flags().DurationVar(&timeout, "timeout", 10*time.Minute, "how long to wait for KubeVirt to be available")
+	install.Flags().DurationVar(&opts.Timeout, "timeout", 10*time.Minute, "how long to wait for KubeVirt to be available")
+	install.Flags().BoolVar(&opts.NoImageVolume, "no-image-volume", false,
+		"run containerDisks as containers, not image volumes (dev clusters reloading VM images under the same tag)")
 	status := &cobra.Command{
 		Use:   "status",
 		Short: "Show KubeVirt and the nodes able to run VMs",
