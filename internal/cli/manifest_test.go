@@ -75,4 +75,13 @@ func TestImagesListsBuiltImages(t *testing.T) {
 	if want := "box\tdocker.io/library/debian:13-slim\t" + filepath.Join(dir, "images", "box") + "\n"; out != want {
 		t.Fatalf("got %q, want %q", out, want)
 	}
+
+	// A VM image recipe is a build context too.
+	if err := os.Rename(filepath.Join(dir, "images", "box", "Dockerfile"), filepath.Join(dir, "images", "box", "image.yaml")); err != nil {
+		t.Fatal(err)
+	}
+	out, _ = run(t, "challenge", "images", dir)
+	if want := "box\tdocker.io/library/debian:13-slim\t" + filepath.Join(dir, "images", "box") + "\n"; out != want {
+		t.Fatalf("recipe: got %q, want %q", out, want)
+	}
 }

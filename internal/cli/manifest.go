@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -41,22 +42,45 @@ func newChallengeManifestCommand() *cobra.Command {
 }
 
 func manifest(out io.Writer, dir, namespace string) error {
-	files := os.DirFS(dir)
+	cm, ch, err := inlineChallenge(os.DirFS(dir), dir, namespace)
+	if err != nil {
+		return err
+	}
+	pkg := ch.Spec.Source.Inline.Package
+	fmt.Fprintf(out, "# %s %s from %s (inline, unsigned: development only)\n", pkg.Metadata.Name, pkg.Metadata.Version, dir)
+	for i, obj := range []any{cm, ch} {
+		doc, err := yaml.Marshal(obj)
+		if err != nil {
+			return err
+		}
+		if i > 0 {
+			fmt.Fprintln(out, "---")
+		}
+		if _, err := out.Write(doc); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// inlineChallenge builds the objects installing a package without a
+// registry: a ConfigMap of its files (in namespace) and a Challenge.
+func inlineChallenge(files fs.FS, dir, namespace string) (*corev1.ConfigMap, *v1alpha1.Challenge, error) {
 	pkg, err := challenge.Load(files)
 	if err != nil {
-		return fmt.Errorf("%s: %w", dir, err)
+		return nil, nil, fmt.Errorf("%s: %w", dir, err)
 	}
 	if errs := challenge.Validate(pkg, files); len(errs) > 0 {
-		return fmt.Errorf("%w: %s: %v (run '%s challenge lint')", errInvalid, dir, errs.ToAggregate(), project.Name)
+		return nil, nil, fmt.Errorf("%w: %s: %v (run '%s challenge lint')", errInvalid, dir, errs.ToAggregate(), project.Name)
 	}
 	bundle, err := challenge.Bundle(pkg, files)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	delete(bundle, challenge.ManifestFile) // embedded in the Challenge
 	data, binaryData, err := challenge.ConfigMapData(bundle)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	labels := map[string]string{project.LabelPrefix + "challenge": pkg.Metadata.Name}
@@ -77,19 +101,5 @@ func manifest(out io.Writer, dir, namespace string) error {
 			Inline: &v1alpha1.InlinePackage{Package: *pkg, FilesConfigMap: cm.Name},
 		}},
 	}
-
-	fmt.Fprintf(out, "# %s %s from %s (inline, unsigned: development only)\n", pkg.Metadata.Name, pkg.Metadata.Version, dir)
-	for i, obj := range []any{cm, ch} {
-		doc, err := yaml.Marshal(obj)
-		if err != nil {
-			return err
-		}
-		if i > 0 {
-			fmt.Fprintln(out, "---")
-		}
-		if _, err := out.Write(doc); err != nil {
-			return err
-		}
-	}
-	return nil
+	return cm, ch, nil
 }
