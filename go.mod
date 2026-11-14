@@ -3,7 +3,7 @@ module github.com/Sigeth/opslab-cli
 go 1.27.0
 
 require (
-	github.com/Sigeth/opslab-core-go v0.4.0
+	github.com/Sigeth/opslab-core-go v0.5.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/spf13/cobra v1.10.2
