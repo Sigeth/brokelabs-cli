@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"testing/fstest"
@@ -10,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"oras.land/oras-go/v2"
 	"oras.land/oras-go/v2/content"
+	"oras.land/oras-go/v2/errdef"
 
 	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
 	"github.com/Sigeth/opslab-core-go/pkg/catalog"
@@ -40,6 +42,7 @@ func newCatalogIndexCommand() *cobra.Command {
 	var (
 		push       string
 		base       string
+		create     bool
 		registries registryFlags
 	)
 	cmd := &cobra.Command{
@@ -63,7 +66,13 @@ func newCatalogIndexCommand() *cobra.Command {
 			ctx := cmd.Context()
 			idx := catalog.New()
 			if base != "" {
-				if idx, err = fetchIndex(ctx, remote, base); err != nil {
+				fetched, err := fetchIndex(ctx, remote, base)
+				switch {
+				case err == nil:
+					idx = fetched
+				case create && errors.Is(err, errdef.ErrNotFound):
+					fmt.Fprintf(cmd.ErrOrStderr(), "%s does not exist yet: starting a new index\n", base)
+				default:
 					return fmt.Errorf("--base %s: %w", base, err)
 				}
 			}
@@ -89,6 +98,7 @@ func newCatalogIndexCommand() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&push, "push", "", "repository and tag of the index to push")
 	cmd.Flags().StringVar(&base, "base", "", "existing index to add the packages to")
+	cmd.Flags().BoolVar(&create, "create-if-missing", false, "with --base, start a new index when the base does not exist yet (the first release); other errors still fail")
 	registries.register(cmd)
 	return cmd
 }
