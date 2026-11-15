@@ -8,10 +8,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/discovery"
@@ -110,8 +112,42 @@ func (c *Cluster) Apply(ctx context.Context, objs []*unstructured.Unstructured) 
 			return fmt.Errorf("applying %s %s: %w", gvk.Kind, obj.GetName(), err)
 		}
 		if gvk.Kind == "CustomResourceDefinition" {
+			// Objects of the new kind may follow: they can only be applied
+			// once the API server serves it.
+			if err := c.waitEstablished(ctx, obj.GetName()); err != nil {
+				return err
+			}
 			c.mapper.Reset()
 		}
 	}
 	return nil
+}
+
+// crdGVR is the resource of CustomResourceDefinitions.
+var crdGVR = schema.GroupVersionResource{Group: "apiextensions.k8s.io", Version: "v1", Resource: "customresourcedefinitions"}
+
+// establishTimeout bounds the wait for a new CustomResourceDefinition.
+const establishTimeout = time.Minute
+
+// waitEstablished waits until the API server serves a CustomResourceDefinition.
+func (c *Cluster) waitEstablished(ctx context.Context, name string) error {
+	ctx, cancel := context.WithTimeout(ctx, establishTimeout)
+	defer cancel()
+	for {
+		crd, err := c.Dynamic.Resource(crdGVR).Get(ctx, name, metav1.GetOptions{})
+		if err == nil {
+			conditions, _, _ := unstructured.NestedSlice(crd.Object, "status", "conditions")
+			for _, cond := range conditions {
+				m, _ := cond.(map[string]any)
+				if m["type"] == "Established" && m["status"] == "True" {
+					return nil
+				}
+			}
+		}
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("CustomResourceDefinition %s is not established after %s", name, establishTimeout)
+		case <-time.After(500 * time.Millisecond):
+		}
+	}
 }
