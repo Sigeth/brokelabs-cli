@@ -29,7 +29,7 @@ func TestPushAndSignAnIndex(t *testing.T) {
 		t.Fatal(err)
 	}
 	idx := catalog.New()
-	if err := catalog.Add(idx, pkg.Manifest, "registry.example/hello@"+built.desc.Digest.String()); err != nil {
+	if err := catalog.Add(idx, pkg.Manifest, pkg.Files, "registry.example/hello@"+built.desc.Digest.String()); err != nil {
 		t.Fatal(err)
 	}
 	dst, err := oci.NewWithContext(ctx, t.TempDir())

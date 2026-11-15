@@ -3,10 +3,13 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
 	"github.com/Sigeth/opslab-core-go/pkg/challenge"
 )
 
@@ -50,10 +53,39 @@ func lint(cmd *cobra.Command, dir string) error {
 	if len(errs) == 0 {
 		fmt.Fprintf(out, "%s %s: valid (%d machines, %d tasks)\n",
 			pkg.Metadata.Name, pkg.Metadata.Version, len(pkg.Spec.Machines), len(pkg.Spec.Tasks))
+		bundle, err := challenge.Bundle(pkg, files)
+		if err != nil {
+			return err
+		}
+		perms, err := challenge.Permissions(pkg, bundle)
+		if err != nil {
+			return fmt.Errorf("%w: %s: %v", errInvalid, dir, err)
+		}
+		printPermissions(out, perms)
 		return nil
 	}
 	for _, e := range errs {
 		fmt.Fprintf(out, "  %s\n", e.Error())
 	}
 	return fmt.Errorf("%w: %d problem(s) in %s", errInvalid, len(errs), dir)
+}
+
+// printPermissions shows what a package needs from the cluster, as admins
+// see it before installing (D41).
+func printPermissions(out io.Writer, perms *v1alpha1.RequiredPermissions) {
+	runtimes := make([]string, 0, len(perms.Runtimes))
+	for _, r := range perms.Runtimes {
+		runtimes = append(runtimes, string(r))
+	}
+	fmt.Fprintf(out, "  permissions: runtimes %s; %s CPU and %s of memory per instance; egress %s\n",
+		strings.Join(runtimes, ", "), perms.CPU.String(), perms.Memory.String(), perms.Egress)
+	if len(perms.EgressAllowlist) > 0 {
+		fmt.Fprintf(out, "  egress to: %s\n", strings.Join(perms.EgressAllowlist, ", "))
+	}
+	if len(perms.ExtraManifestKinds) > 0 {
+		fmt.Fprintf(out, "  extra manifests: %s\n", strings.Join(perms.ExtraManifestKinds, ", "))
+	}
+	if perms.CheckerImage != "" {
+		fmt.Fprintf(out, "  custom checker: %s\n", perms.CheckerImage)
+	}
 }

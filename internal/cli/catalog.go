@@ -129,7 +129,7 @@ func addPackage(ctx context.Context, remote ocipkg.Remote, idx *v1alpha1.Catalog
 	if errs := challenge.Validate(pkg.Manifest, mapFiles(pkg.Files)); len(errs) > 0 {
 		return fmt.Errorf("%s: %w: %v", ref, errInvalid, errs.ToAggregate())
 	}
-	return catalog.Add(idx, pkg.Manifest, ref)
+	return catalog.Add(idx, pkg.Manifest, pkg.Files, ref)
 }
 
 // pushIndex packs idx into dst and tags it.
