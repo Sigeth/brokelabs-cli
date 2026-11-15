@@ -58,8 +58,12 @@ func TestInstanceNameFitsANamespace(t *testing.T) {
 func TestReport(t *testing.T) {
 	var out bytes.Buffer
 	results := []v1alpha1.TaskResult{{Task: "a", Passed: false}, {Task: "b", Passed: true, Message: "already fine"}}
-	if wrong := report(&out, results, false); wrong != 1 {
+	if wrong := report(&out, results, func(string) bool { return false }); wrong != 1 {
 		t.Fatalf("wrong = %d", wrong)
+	}
+	// A guard passes from the start.
+	if wrong := report(&bytes.Buffer{}, results, func(task string) bool { return task == "b" }); wrong != 0 {
+		t.Fatalf("with a guard: wrong = %d", wrong)
 	}
 	if !strings.Contains(out.String(), "FAIL b passes: already fine") {
 		t.Fatalf("report = %q", out.String())

@@ -142,12 +142,16 @@ func (t challengeTest) run(ctx context.Context, keep, replace bool) error {
 	}
 	fmt.Fprintf(t.out, "instance ready after %s\n", time.Since(start).Round(time.Second))
 
-	fmt.Fprintln(t.out, "checks before the solution (all must fail):")
+	guards := map[string]bool{}
+	for _, task := range pkg.Spec.Tasks {
+		guards[task.ID] = task.Guard
+	}
+	fmt.Fprintln(t.out, "checks before the solution (all must fail, guards pass):")
 	before, err := t.check(ctx, instance, 1)
 	if err != nil {
 		return fmt.Errorf("%w: %v", errChallengeTest, err)
 	}
-	passing := report(t.out, before, false)
+	unexpectedBefore := report(t.out, before, func(task string) bool { return guards[task] })
 
 	if err := t.openSSH(ctx, inst.Status.Namespace, steps); err != nil {
 		return err
@@ -164,11 +168,11 @@ func (t challengeTest) run(ctx context.Context, keep, replace bool) error {
 	if err != nil {
 		return fmt.Errorf("%w: %v", errChallengeTest, err)
 	}
-	failing := report(t.out, after, true)
+	failing := report(t.out, after, func(string) bool { return true })
 
 	var problems []string
-	if passing > 0 {
-		problems = append(problems, fmt.Sprintf("%d task(s) pass without the solution", passing))
+	if unexpectedBefore > 0 {
+		problems = append(problems, fmt.Sprintf("%d task(s) are already solved or break before the solution (mark tasks true from the start as guard: true)", unexpectedBefore))
 	}
 	if failing > 0 {
 		problems = append(problems, fmt.Sprintf("%d task(s) still fail with the solution", failing))
@@ -176,17 +180,17 @@ func (t challengeTest) run(ctx context.Context, keep, replace bool) error {
 	if len(problems) > 0 {
 		return fmt.Errorf("%w: %s", errChallengeTest, strings.Join(problems, ", "))
 	}
-	fmt.Fprintf(t.out, "%s: every task fails before the solution and passes after it\n", name)
+	fmt.Fprintf(t.out, "%s: every task fails before the solution and passes after it, guards hold\n", name)
 	return nil
 }
 
-// report prints check results against what is expected and returns how many
-// tasks did not meet it.
-func report(out io.Writer, results []v1alpha1.TaskResult, wantPassed bool) int {
+// report prints check results against what is expected of each task
+// (passing or not) and returns how many tasks did not meet it.
+func report(out io.Writer, results []v1alpha1.TaskResult, wantPassed func(task string) bool) int {
 	wrong := 0
 	for _, r := range results {
 		mark := "ok  "
-		if r.Passed != wantPassed {
+		if r.Passed != wantPassed(r.Task) {
 			mark, wrong = "FAIL", wrong+1
 		}
 		state := "fails"
