@@ -36,7 +36,7 @@ func TestSignWithAKey(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := signPackage(ctx, store, built.desc, signer); err != nil {
+	if _, err := signArtifact(ctx, store, built.desc, signablePackage, signer); err != nil {
 		t.Fatal(err)
 	}
 
@@ -55,7 +55,7 @@ func TestSignWithAKey(t *testing.T) {
 	}
 
 	// The solution is not a package: it cannot be signed as one.
-	if _, err := signPackage(ctx, store, *built.solution, signer); err == nil {
+	if _, err := signArtifact(ctx, store, *built.solution, signablePackage, signer); err == nil {
 		t.Fatal("signing a solution must fail")
 	}
 }

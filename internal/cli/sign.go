@@ -26,7 +26,24 @@ import (
 // IdentityTokenEnv holds an OIDC token for keyless signing.
 const IdentityTokenEnv = "SIGSTORE_ID_TOKEN"
 
+// signable reads an artifact to sign and returns its OCI manifest bytes,
+// failing when the artifact is not of the expected kind.
+type signable func(ctx context.Context, src content.Fetcher, desc ocispec.Descriptor) ([]byte, error)
+
+func signablePackage(ctx context.Context, src content.Fetcher, desc ocispec.Descriptor) ([]byte, error) {
+	pkg, err := ocipkg.Fetch(ctx, src, desc)
+	if err != nil {
+		return nil, err
+	}
+	return pkg.OCIManifest, nil
+}
+
 func newChallengeSignCommand() *cobra.Command {
+	return newSignCommand("challenge package", project.Name+" challenge push", signablePackage)
+}
+
+// newSignCommand signs artifacts of one kind (packages, catalog indexes).
+func newSignCommand(kind, pushedBy string, check signable) *cobra.Command {
 	var (
 		keyFile    string
 		keyless    bool
@@ -34,8 +51,8 @@ func newChallengeSignCommand() *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "sign REF",
-		Short: "Sign a pushed challenge package",
-		Long: "Signs the package at REF (pinned by digest, as printed by '" + project.Name + " challenge push') and attaches\n" +
+		Short: "Sign a pushed " + kind,
+		Long: "Signs the " + kind + " at REF (pinned by digest, as printed by '" + pushedBy + "') and attaches\n" +
 			"the signature to it in the registry, as a Sigstore bundle referrer.\n\n" +
 			"With --key, signs with an ECDSA P-256 private key (unencrypted PEM), e.g. created with:\n" +
 			"  openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out signing.key\n" +
@@ -72,7 +89,7 @@ func newChallengeSignCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			sig, err := signPackage(ctx, repo, desc, signer)
+			sig, err := signArtifact(ctx, repo, desc, check, signer)
 			if err != nil {
 				return err
 			}
@@ -89,18 +106,17 @@ func newChallengeSignCommand() *cobra.Command {
 // packageSigner turns an OCI manifest into a Sigstore bundle.
 type packageSigner func(manifest []byte) ([]byte, error)
 
-// signPackage signs the package described by desc in target and attaches
-// the signature to it.
-func signPackage(ctx context.Context, target interface {
+// signArtifact checks the artifact described by desc in target, signs it and
+// attaches the signature to it.
+func signArtifact(ctx context.Context, target interface {
 	content.Fetcher
 	content.Pusher
-}, desc ocispec.Descriptor, signer packageSigner) (ocispec.Descriptor, error) {
-	// Only packages are signed: Fetch checks the artifact before signing it.
-	pkg, err := ocipkg.Fetch(ctx, target, desc)
+}, desc ocispec.Descriptor, check signable, signer packageSigner) (ocispec.Descriptor, error) {
+	manifest, err := check(ctx, target, desc)
 	if err != nil {
 		return ocispec.Descriptor{}, err
 	}
-	bundle, err := signer(pkg.OCIManifest)
+	bundle, err := signer(manifest)
 	if err != nil {
 		return ocispec.Descriptor{}, fmt.Errorf("signing: %w", err)
 	}
