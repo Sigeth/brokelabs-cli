@@ -6,7 +6,7 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
+	"github.com/Sigeth/brokelabs-core-go/api/v1alpha1"
 )
 
 func testPkg(machines ...v1alpha1.Machine) *v1alpha1.ChallengePackage {

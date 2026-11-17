@@ -19,12 +19,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
-	"github.com/Sigeth/opslab-core-go/pkg/kubeexec"
-	"github.com/Sigeth/opslab-core-go/pkg/project"
-	"github.com/Sigeth/opslab-core-go/pkg/sshexec"
+	"github.com/Sigeth/brokelabs-core-go/api/v1alpha1"
+	"github.com/Sigeth/brokelabs-core-go/pkg/kubeexec"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/pkg/sshexec"
 
-	"github.com/Sigeth/opslab-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 // SolveScript is the solution run on the first terminal machine when the
@@ -71,7 +71,7 @@ func newChallengeTestCommand() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&kubeconfig, "kubeconfig", "", "kubeconfig file (default: $KUBECONFIG or ~/.kube/config)")
 	cmd.Flags().StringVar(&kubeContext, "context", "", "kubeconfig context (default: the current one)")
-	cmd.Flags().StringVar(&systemNS, "system-namespace", defaultSystemNamespace, "namespace of the opslab operator")
+	cmd.Flags().StringVar(&systemNS, "system-namespace", defaultSystemNamespace, "namespace of the BrokeLabs operator")
 	cmd.Flags().StringVar(&instancesNS, "instances-namespace", defaultInstancesNamespace, "namespace of the instances")
 	cmd.Flags().DurationVar(&timeout, "timeout", 10*time.Minute, "how long to wait for each step")
 	cmd.Flags().BoolVar(&keep, "keep", false, "keep the instance and the challenge (to investigate)")

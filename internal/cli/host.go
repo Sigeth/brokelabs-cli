@@ -8,9 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Sigeth/opslab-cli/internal/addon"
-	"github.com/Sigeth/opslab-cli/internal/host"
-	"github.com/Sigeth/opslab-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-cli/internal/addon"
+	"github.com/Sigeth/brokelabs-cli/internal/host"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 var errNoKVM = errors.New("this machine cannot run the vm runtime")
@@ -75,7 +75,7 @@ func newAddonCommand() *cobra.Command {
 	var opts addon.KubeVirtOptions
 	install := &cobra.Command{
 		Use:   "install",
-		Short: "Install or upgrade KubeVirt, configured for opslab",
+		Short: "Install or upgrade KubeVirt, configured for brokelabs",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			c, err := kube.Connect(kubeconfig, kubeContext)

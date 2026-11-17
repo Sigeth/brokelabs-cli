@@ -24,7 +24,7 @@ import (
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/Sigeth/opslab-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
 )
 
 // FieldManager owns the fields the CLI applies.

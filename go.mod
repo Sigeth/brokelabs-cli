@@ -1,9 +1,9 @@
-module github.com/Sigeth/opslab-cli
+module github.com/Sigeth/brokelabs-cli
 
 go 1.27.0
 
 require (
-	github.com/Sigeth/opslab-core-go v0.8.1
+	github.com/Sigeth/brokelabs-core-go v0.9.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/opencontainers/image-spec v1.1.1

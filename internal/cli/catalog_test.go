@@ -8,10 +8,10 @@ import (
 
 	"oras.land/oras-go/v2/content/oci"
 
-	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
-	"github.com/Sigeth/opslab-core-go/pkg/catalog"
-	"github.com/Sigeth/opslab-core-go/pkg/ocipkg"
-	"github.com/Sigeth/opslab-core-go/pkg/signing"
+	"github.com/Sigeth/brokelabs-core-go/api/v1alpha1"
+	"github.com/Sigeth/brokelabs-core-go/pkg/catalog"
+	"github.com/Sigeth/brokelabs-core-go/pkg/ocipkg"
+	"github.com/Sigeth/brokelabs-core-go/pkg/signing"
 )
 
 func TestPushAndSignAnIndex(t *testing.T) {

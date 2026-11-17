@@ -1,11 +1,11 @@
-// Command opslab installs and operates the opslab platform, and helps authors
+// Command brokelabs installs and operates the BrokeLabs platform, and helps authors
 // write, test and publish challenges.
 package main
 
 import (
 	"os"
 
-	"github.com/Sigeth/opslab-cli/internal/cli"
+	"github.com/Sigeth/brokelabs-cli/internal/cli"
 )
 
 func main() {

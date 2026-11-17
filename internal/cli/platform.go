@@ -14,10 +14,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
-	"github.com/Sigeth/opslab-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/api/v1alpha1"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
 
-	"github.com/Sigeth/opslab-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 // defaultInstancesNamespace holds ChallengeInstances and CheckRuns.

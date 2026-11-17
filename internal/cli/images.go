@@ -7,12 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Sigeth/opslab-core-go/pkg/challenge"
+	"github.com/Sigeth/brokelabs-core-go/pkg/challenge"
 )
 
 // ImagesDir holds the recipe of each machine image a challenge builds:
 // images/<machine>/Dockerfile for pod machines, images/<machine>/image.yaml
-// (a VM image recipe, built by opslab-ci's vm-image) for vm machines.
+// (a VM image recipe, built by brokelabs-ci's vm-image) for vm machines.
 const ImagesDir = "images"
 
 func newChallengeImagesCommand() *cobra.Command {

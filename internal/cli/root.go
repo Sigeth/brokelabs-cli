@@ -1,4 +1,4 @@
-// Package cli implements the opslab commands.
+// Package cli implements the brokelabs commands.
 package cli
 
 import (
@@ -7,17 +7,17 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Sigeth/opslab-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
 )
 
-// version is set at build time: -ldflags "-X github.com/Sigeth/opslab-cli/internal/cli.version=v0.1.0".
+// version is set at build time: -ldflags "-X github.com/Sigeth/brokelabs-cli/internal/cli.version=v0.1.0".
 var version = ""
 
 // NewRootCommand builds the command tree.
 func NewRootCommand() *cobra.Command {
 	root := &cobra.Command{
 		Use:           project.Name,
-		Short:         "Install opslab and write challenges for it",
+		Short:         "Install BrokeLabs and write challenges for it",
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}

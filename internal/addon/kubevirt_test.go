@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/kubernetes/fake"
 
-	"github.com/Sigeth/opslab-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 func node(name string, kvm string) *corev1.Node {
@@ -36,13 +36,13 @@ func TestKVMNodes(t *testing.T) {
 }
 
 func TestRestartOperators(t *testing.T) {
-	labels := map[string]string{"app.kubernetes.io/part-of": "opslab", "app.kubernetes.io/name": "operator"}
+	labels := map[string]string{"app.kubernetes.io/part-of": "brokelabs", "app.kubernetes.io/name": "operator"}
 	client := fake.NewClientset(
-		&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "opslab-operator", Namespace: "opslab-system", Labels: labels}},
-		&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "other", Namespace: "opslab-system"}},
+		&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "brokelabs-operator", Namespace: "brokelabs-system", Labels: labels}},
+		&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "other", Namespace: "brokelabs-system"}},
 	)
 	got, err := restartOperators(context.Background(), client)
-	if err != nil || !slices.Equal(got, []string{"opslab-system/opslab-operator"}) {
+	if err != nil || !slices.Equal(got, []string{"brokelabs-system/brokelabs-operator"}) {
 		t.Fatalf("restarted = %v, %v", got, err)
 	}
 }

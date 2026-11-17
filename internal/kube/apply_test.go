@@ -10,10 +10,10 @@ import (
 
 // TestApplyCRDThenObject applies a new CustomResourceDefinition and an object
 // of its kind in one call, on the cluster of the current context:
-// OPSLAB_TEST_KUBE=1 go test ./internal/kube -run TestApplyCRDThenObject
+// BROKELABS_TEST_KUBE=1 go test ./internal/kube -run TestApplyCRDThenObject
 func TestApplyCRDThenObject(t *testing.T) {
-	if os.Getenv("OPSLAB_TEST_KUBE") == "" {
-		t.Skip("set OPSLAB_TEST_KUBE=1 to run against the current cluster")
+	if os.Getenv("BROKELABS_TEST_KUBE") == "" {
+		t.Skip("set BROKELABS_TEST_KUBE=1 to run against the current cluster")
 	}
 	c, err := Connect("", "")
 	if err != nil {
@@ -21,9 +21,9 @@ func TestApplyCRDThenObject(t *testing.T) {
 	}
 	objs, err := Objects([]byte(`apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
-metadata: {name: widgets.applytest.opslab.io}
+metadata: {name: widgets.applytest.brokelabs.io}
 spec:
-  group: applytest.opslab.io
+  group: applytest.brokelabs.io
   names: {kind: Widget, plural: widgets, singular: widget}
   scope: Cluster
   versions:
@@ -32,7 +32,7 @@ spec:
       storage: true
       schema: {openAPIV3Schema: {type: object, x-kubernetes-preserve-unknown-fields: true}}
 ---
-apiVersion: applytest.opslab.io/v1
+apiVersion: applytest.brokelabs.io/v1
 kind: Widget
 metadata: {name: first}
 `))
@@ -40,7 +40,7 @@ metadata: {name: first}
 		t.Fatal(err)
 	}
 	defer func() {
-		_ = c.Dynamic.Resource(crdGVR).Delete(context.Background(), "widgets.applytest.opslab.io", metav1.DeleteOptions{})
+		_ = c.Dynamic.Resource(crdGVR).Delete(context.Background(), "widgets.applytest.brokelabs.io", metav1.DeleteOptions{})
 	}()
 	if err := c.Apply(context.Background(), objs); err != nil {
 		t.Fatal(err)

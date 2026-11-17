@@ -40,8 +40,8 @@ github.com/Masterminds/semver/v3 v3.5.0 h1:kQceYJfbupGfZOKZQg0kou0DgAKhzDg2NZPAw
 github.com/Masterminds/semver/v3 v3.5.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/ProtonMail/go-crypto v1.4.1 h1:9RfcZHqEQUvP8RzecWEUafnZVtEvrBVL9BiF67IQOfM=
 github.com/ProtonMail/go-crypto v1.4.1/go.mod h1:e1OaTyu5SYVrO9gKOEhTc+5UcXtTUa+P3uLudwcgPqo=
-github.com/Sigeth/opslab-core-go v0.8.1 h1:g1sj6LS7Y/wVJEGTxI57eEwNt4+99i0B7OteZdV9Jl8=
-github.com/Sigeth/opslab-core-go v0.8.1/go.mod h1:A5hnetvIW4EO+BT9b445/vHVKWHjhUFa7Ye4AmwcNww=
+github.com/Sigeth/brokelabs-core-go v0.9.0 h1:NQFnXRT43QyfoT6N8/rZMkFcMn8FSVQMNm/cv1dJ5hg=
+github.com/Sigeth/brokelabs-core-go v0.9.0/go.mod h1:G9Agi8fwrC+QpANjC1nrsHjEuy8rnffydVzhS4rygjE=
 github.com/antlr4-go/antlr/v4 v4.13.1 h1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYWrPrQ=
 github.com/antlr4-go/antlr/v4 v4.13.1/go.mod h1:GKmUxMtwp6ZgGwZSva4eWPC5mS6vUAmOABFgjdkM7Nw=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=

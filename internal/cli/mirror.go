@@ -13,8 +13,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/Sigeth/opslab-cli/internal/kube"
-	"github.com/Sigeth/opslab-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
 )
 
 // mirrorService is the Service of the registry mirror in the platform namespace.

@@ -12,7 +12,7 @@ import (
 	"oras.land/oras-go/v2/content/oci"
 	"oras.land/oras-go/v2/registry"
 
-	"github.com/Sigeth/opslab-core-go/pkg/ocipkg"
+	"github.com/Sigeth/brokelabs-core-go/pkg/ocipkg"
 )
 
 var imageDigest = digest.FromString("debian")

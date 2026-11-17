@@ -13,11 +13,11 @@ import (
 	"oras.land/oras-go/v2/content"
 	"oras.land/oras-go/v2/errdef"
 
-	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
-	"github.com/Sigeth/opslab-core-go/pkg/catalog"
-	"github.com/Sigeth/opslab-core-go/pkg/challenge"
-	"github.com/Sigeth/opslab-core-go/pkg/ocipkg"
-	"github.com/Sigeth/opslab-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/api/v1alpha1"
+	"github.com/Sigeth/brokelabs-core-go/pkg/catalog"
+	"github.com/Sigeth/brokelabs-core-go/pkg/challenge"
+	"github.com/Sigeth/brokelabs-core-go/pkg/ocipkg"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
 )
 
 func newCatalogCommand() *cobra.Command {
@@ -51,8 +51,8 @@ func newCatalogIndexCommand() *cobra.Command {
 		Long: "Reads every package (pinned by digest, as printed by '" + project.Name + " challenge push'), validates it\n" +
 			"and lists it in a catalog index pushed to --push. With --base, the packages are added to an\n" +
 			"existing index, so a catalog grows one release at a time:\n\n" +
-			"  " + project.Name + " catalog index --base ghcr.io/sigeth/opslab-catalog:latest \\\n" +
-			"    --push ghcr.io/sigeth/opslab-catalog:latest ghcr.io/sigeth/opslab-challenges/ssh-hardening@sha256:...\n\n" +
+			"  " + project.Name + " catalog index --base ghcr.io/sigeth/brokelabs-catalog:latest \\\n" +
+			"    --push ghcr.io/sigeth/brokelabs-catalog:latest ghcr.io/sigeth/brokelabs-challenges/ssh-hardening@sha256:...\n\n" +
 			"Sign the index afterwards with '" + project.Name + " catalog sign'.",
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

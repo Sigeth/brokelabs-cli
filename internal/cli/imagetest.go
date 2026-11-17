@@ -10,10 +10,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
-	"github.com/Sigeth/opslab-core-go/pkg/challenge"
+	"github.com/Sigeth/brokelabs-core-go/api/v1alpha1"
+	"github.com/Sigeth/brokelabs-core-go/pkg/challenge"
 
-	"github.com/Sigeth/opslab-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 var errContract = errors.New("the image does not meet the base image contract")
@@ -22,7 +22,7 @@ var errContract = errors.New("the image does not meet the base image contract")
 // test without network access. Provisioning checks most of the contract
 // (cloud-init done, SSH as the checker with the pinned host key, sudo for
 // setup); its tasks check the rest.
-const contractPackage = `apiVersion: opslab.io/v1alpha1
+const contractPackage = `apiVersion: brokelabs.io/v1alpha1
 kind: ChallengePackage
 metadata: {name: NAME, version: 0.0.0}
 spec:
@@ -71,7 +71,7 @@ func newImageCommand() *cobra.Command {
 		Short: "Boot a VM image on the cluster and check the base image contract",
 		Long: "Installs a throwaway challenge whose only machine boots IMAGE (a containerDisk) without\n" +
 			"network access, waits until the platform has set it up, runs the contract checks, and\n" +
-			"removes everything. Needs opslab with KubeVirt on the cluster of the current context.",
+			"removes everything. Needs BrokeLabs with KubeVirt on the cluster of the current context.",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := kube.Connect(kubeconfig, kubeContext)
@@ -84,7 +84,7 @@ func newImageCommand() *cobra.Command {
 	}
 	test.Flags().StringVar(&kubeconfig, "kubeconfig", "", "kubeconfig file (default: $KUBECONFIG or ~/.kube/config)")
 	test.Flags().StringVar(&kubeContext, "context", "", "kubeconfig context (default: the current one)")
-	test.Flags().StringVar(&systemNS, "system-namespace", defaultSystemNamespace, "namespace of the opslab operator")
+	test.Flags().StringVar(&systemNS, "system-namespace", defaultSystemNamespace, "namespace of the BrokeLabs operator")
 	test.Flags().StringVar(&instancesNS, "instances-namespace", defaultInstancesNamespace, "namespace of the instances")
 	test.Flags().DurationVar(&timeout, "timeout", 10*time.Minute, "how long to wait for the machine")
 	test.Flags().BoolVar(&keep, "keep", false, "keep the instance and challenge (to investigate)")

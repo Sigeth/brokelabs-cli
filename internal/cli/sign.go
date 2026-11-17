@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/cobra"
 	"oras.land/oras-go/v2/content"
 
-	"github.com/Sigeth/opslab-core-go/pkg/ocipkg"
-	"github.com/Sigeth/opslab-core-go/pkg/project"
-	"github.com/Sigeth/opslab-core-go/pkg/signing"
+	"github.com/Sigeth/brokelabs-core-go/pkg/ocipkg"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/pkg/signing"
 )
 
 // IdentityTokenEnv holds an OIDC token for keyless signing.

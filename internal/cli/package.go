@@ -16,9 +16,9 @@ import (
 	"oras.land/oras-go/v2/registry/remote/auth"
 	"oras.land/oras-go/v2/registry/remote/credentials"
 
-	"github.com/Sigeth/opslab-core-go/pkg/challenge"
-	"github.com/Sigeth/opslab-core-go/pkg/ocipkg"
-	"github.com/Sigeth/opslab-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/pkg/challenge"
+	"github.com/Sigeth/brokelabs-core-go/pkg/ocipkg"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
 )
 
 // SolutionDir holds the reference solution of a challenge. It is published as
@@ -212,7 +212,7 @@ func newChallengePushCommand() *cobra.Command {
 		Short: "Push a built challenge package to a registry",
 		Long: "Pushes the package of an OCI image layout written by '" + project.Name + " challenge build',\n" +
 			"with its solution, to REPOSITORY, tagged with the package version:\n\n" +
-			"  " + project.Name + " challenge push dist/ssh-hardening-1.0.0 ghcr.io/sigeth/opslab-challenges/ssh-hardening\n\n" +
+			"  " + project.Name + " challenge push dist/ssh-hardening-1.0.0 ghcr.io/sigeth/brokelabs-challenges/ssh-hardening\n\n" +
 			"It prints the pushed reference, pinned by digest. Credentials come from 'docker login' or 'podman login'.",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

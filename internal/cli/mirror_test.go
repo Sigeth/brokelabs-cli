@@ -11,7 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"sigs.k8s.io/yaml"
 
-	"github.com/Sigeth/opslab-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 func TestRegistriesConfig(t *testing.T) {
@@ -42,10 +42,10 @@ func TestRegistriesConfig(t *testing.T) {
 
 func TestMirrorEndpointFromTheService(t *testing.T) {
 	c := &kube.Cluster{Client: fake.NewSimpleClientset(&corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{Name: mirrorService, Namespace: "opslab-system"},
+		ObjectMeta: metav1.ObjectMeta{Name: mirrorService, Namespace: "brokelabs-system"},
 		Spec:       corev1.ServiceSpec{ClusterIP: "10.43.12.34"},
 	})}
-	got, err := mirrorEndpoint(context.Background(), c, "opslab-system")
+	got, err := mirrorEndpoint(context.Background(), c, "brokelabs-system")
 	if err != nil || got != "10.43.12.34:5000" {
 		t.Fatalf("endpoint = %q, %v", got, err)
 	}

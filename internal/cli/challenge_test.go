@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-const validManifest = `apiVersion: opslab.io/v1alpha1
+const validManifest = `apiVersion: brokelabs.io/v1alpha1
 kind: ChallengePackage
 metadata: {name: hello, version: 0.1.0}
 spec:

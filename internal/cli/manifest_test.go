@@ -10,7 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 
-	"github.com/Sigeth/opslab-core-go/api/v1alpha1"
+	"github.com/Sigeth/brokelabs-core-go/api/v1alpha1"
 )
 
 func TestManifestPrintsConfigMapAndChallenge(t *testing.T) {
@@ -25,7 +25,7 @@ func TestManifestPrintsConfigMapAndChallenge(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	out, err := run(t, "challenge", "manifest", dir, "-n", "opslab-dev")
+	out, err := run(t, "challenge", "manifest", dir, "-n", "brokelabs-dev")
 	if err != nil {
 		t.Fatalf("%v\n%s", err, out)
 	}
@@ -37,7 +37,7 @@ func TestManifestPrintsConfigMapAndChallenge(t *testing.T) {
 	if err := yaml.UnmarshalStrict([]byte(docs[0]), &cm); err != nil {
 		t.Fatal(err)
 	}
-	if cm.Namespace != "opslab-dev" || cm.Data["setup.sh"] != "echo hi\n" || cm.Data["instructions__en.md"] != "# Hello\n" {
+	if cm.Namespace != "brokelabs-dev" || cm.Data["setup.sh"] != "echo hi\n" || cm.Data["instructions__en.md"] != "# Hello\n" {
 		t.Fatalf("configmap: %+v", cm)
 	}
 	if _, ok := cm.Data["challenge.yaml"]; ok {

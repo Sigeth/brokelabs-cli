@@ -20,9 +20,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/Sigeth/opslab-core-go/pkg/project"
+	"github.com/Sigeth/brokelabs-core-go/pkg/project"
 
-	"github.com/Sigeth/opslab-cli/internal/kube"
+	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 // The KubeVirt release installed, pinned with the checksum of its operator
@@ -37,7 +37,7 @@ const (
 // downloaded from.
 var KubeVirtOperatorURL = "https://github.com/kubevirt/kubevirt/releases/download/" + KubeVirtVersion + "/kubevirt-operator.yaml"
 
-// kubeVirtCR configures KubeVirt for opslab: the RuntimeDefault seccomp
+// kubeVirtCR configures KubeVirt for BrokeLabs: the RuntimeDefault seccomp
 // profile makes the VMs' launcher pods pass the "restricted" Pod Security
 // Standard of instance namespaces (D33).
 const kubeVirtCR = `apiVersion: kubevirt.io/v1
@@ -79,7 +79,7 @@ func kubeVirtCRFor(opts KubeVirtOptions) string {
 }
 
 // InstallKubeVirt installs or upgrades KubeVirt and waits until it is
-// available. It then restarts the opslab operator, which detects KubeVirt
+// available. It then restarts the BrokeLabs operator, which detects KubeVirt
 // at startup.
 func InstallKubeVirt(ctx context.Context, c *kube.Cluster, out io.Writer, opts KubeVirtOptions) error {
 	timeout := opts.Timeout
@@ -172,7 +172,7 @@ func KVMNodes(ctx context.Context, client kubernetes.Interface) ([]string, error
 	return names, nil
 }
 
-// restartOperators restarts the opslab operator deployments of the cluster.
+// restartOperators restarts the BrokeLabs operator deployments of the cluster.
 func restartOperators(ctx context.Context, client kubernetes.Interface) ([]string, error) {
 	list, err := client.AppsV1().Deployments("").List(ctx, metav1.ListOptions{
 		LabelSelector: "app.kubernetes.io/part-of=" + project.Name + ",app.kubernetes.io/name=operator",
