@@ -46,7 +46,8 @@ func newChallengeTestCommand() *cobra.Command {
 			"instance and runs its checks, which must all fail. It then runs the reference solution as the\n" +
 			"student, the way a student would in a terminal, and runs the checks again: they must all pass.\n\n" +
 			"The solution is " + SolutionDir + "/<machine>.sh for each machine that has one, or " + SolveScript + "\n" +
-			"on the first terminal machine. Scripts run with sh, as the student (who has sudo on vm machines).\n" +
+			"on the first terminal machine. Scripts run with sh, as the student (who has sudo on vm machines,\n" +
+			"and on userns machines when the image installs it).\n" +
 			"Machine images must be pullable by the cluster.",
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -285,8 +286,9 @@ func (t challengeTest) dialVM(ctx context.Context, namespace, vm string) (net.Co
 }
 
 // solve runs a solution script as the student on its machine: through exec
-// on pod machines (whose user is the student), over SSH on vm machines,
-// tunnelled through the API server (KubeVirt port forwarding).
+// on pod machines (whose user is the student) and userns machines (through
+// su, their container running as root), over SSH on vm machines, tunnelled
+// through the API server (KubeVirt port forwarding).
 func (t challengeTest) solve(ctx context.Context, namespace string, s solutionStep) error {
 	var stdout, stderr []byte
 	var exit int
@@ -313,11 +315,15 @@ func (t challengeTest) solve(ctx context.Context, namespace string, s solutionSt
 		}
 		stdout, stderr, exit = res.Stdout, res.Stderr, res.ExitCode
 	default:
+		command := []string{"sh", "-s"}
+		if s.machine.Runtime == v1alpha1.RuntimeUserns {
+			command = kubeexec.AsUser(v1alpha1.StudentUser, command)
+		}
 		res, err := t.exec.Exec(ctx, kubeexec.Request{
 			Namespace: namespace,
 			Pod:       s.machine.Name,
 			Container: v1alpha1.MachineContainer,
-			Command:   []string{"sh", "-s"},
+			Command:   command,
 			Stdin:     bytes.NewReader(s.data),
 		})
 		if err != nil {
