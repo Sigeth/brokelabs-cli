@@ -101,6 +101,26 @@ func newAddonCommand() *cobra.Command {
 		},
 	}
 	kubevirt.AddCommand(install, status)
-	cmd.AddCommand(kubevirt)
+
+	cilium := &cobra.Command{
+		Use:   "cilium",
+		Short: "Cilium, the cluster network (" + addon.CiliumVersion + "): drops forged source addresses",
+	}
+	var ciliumOpts addon.CiliumOptions
+	ciliumInstall := &cobra.Command{
+		Use:   "install",
+		Short: "Install or upgrade Cilium (on k3s: flannel-backend none, disable-network-policy)",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			c, err := kube.Connect(kubeconfig, kubeContext)
+			if err != nil {
+				return err
+			}
+			return addon.InstallCilium(cmd.Context(), c, cmd.OutOrStdout(), ciliumOpts)
+		},
+	}
+	ciliumInstall.Flags().DurationVar(&ciliumOpts.Timeout, "timeout", 10*time.Minute, "how long to wait for Cilium to be ready")
+	cilium.AddCommand(ciliumInstall)
+	cmd.AddCommand(kubevirt, cilium)
 	return cmd
 }
