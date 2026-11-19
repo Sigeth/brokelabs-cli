@@ -2,6 +2,7 @@ package addon
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	_ "embed"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 	"helm.sh/helm/v4/pkg/chart/v2/loader"
 	"helm.sh/helm/v4/pkg/engine"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
@@ -74,6 +76,31 @@ func RenderCilium(minor int) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
+// ciliumObjects decodes the rendered objects, Namespaces first: the chart's
+// files come in name order, and some put objects in the cilium-secrets
+// Namespace before the file that creates it.
+func ciliumObjects(minor int) ([]*unstructured.Unstructured, error) {
+	manifest, err := RenderCilium(minor)
+	if err != nil {
+		return nil, err
+	}
+	objs, err := kube.Objects(manifest)
+	if err != nil {
+		return nil, fmt.Errorf("decoding the Cilium manifest: %w", err)
+	}
+	slices.SortStableFunc(objs, func(a, b *unstructured.Unstructured) int {
+		return cmp.Compare(kindRank(a), kindRank(b))
+	})
+	return objs, nil
+}
+
+func kindRank(o *unstructured.Unstructured) int {
+	if o.GetKind() == "Namespace" {
+		return 0
+	}
+	return 1
+}
+
 // CiliumOptions configure InstallCilium.
 type CiliumOptions struct {
 	Timeout time.Duration
@@ -91,13 +118,9 @@ func InstallCilium(ctx context.Context, c *kube.Cluster, out io.Writer, opts Cil
 	if err != nil {
 		return fmt.Errorf("reading the Kubernetes version %q: %w", version.Minor, err)
 	}
-	manifest, err := RenderCilium(minor)
+	objs, err := ciliumObjects(minor)
 	if err != nil {
 		return err
-	}
-	objs, err := kube.Objects(manifest)
-	if err != nil {
-		return fmt.Errorf("decoding the Cilium manifest: %w", err)
 	}
 	fmt.Fprintf(out, "installing Cilium %s\n", CiliumVersion)
 	if err := c.Apply(ctx, objs); err != nil {

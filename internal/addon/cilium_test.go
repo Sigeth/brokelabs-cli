@@ -3,8 +3,6 @@ package addon
 import (
 	"strings"
 	"testing"
-
-	"github.com/Sigeth/brokelabs-cli/internal/kube"
 )
 
 func TestRenderCilium(t *testing.T) {
@@ -12,12 +10,15 @@ func TestRenderCilium(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	objs, err := kube.Objects(manifest)
+	objs, err := ciliumObjects(37)
 	if err != nil {
 		t.Fatal(err)
 	}
 	kinds := map[string]bool{}
 	for _, o := range objs {
+		if ns := o.GetNamespace(); ns != "" && ns != ciliumNamespace && !kinds["Namespace/"+ns] {
+			t.Errorf("%s %s is applied before its Namespace %s", o.GetKind(), o.GetName(), ns)
+		}
 		kinds[o.GetKind()+"/"+o.GetName()] = true
 		if o.GetAnnotations()["helm.sh/hook"] != "" {
 			t.Errorf("%s %s is a Helm hook: nothing would run it", o.GetKind(), o.GetName())
